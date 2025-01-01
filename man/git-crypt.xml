@@ -160,6 +160,15 @@
 								</para>
 							</listitem>
 						</varlistentry>
+						<varlistentry>
+							<term><option>-i</option></term>
+
+							<listitem>
+								<para>
+									Ignore untracked files.
+								</para>
+							</listitem>
+						</varlistentry>
 					</variablelist>
 				</listitem>
 			</varlistentry>

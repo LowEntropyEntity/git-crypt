@@ -1509,6 +1509,7 @@ void help_status (std::ostream& out)
 	//out << "    -r             Show repository status only" << std::endl;
 	out << "    -f, --fix      Fix problems with the repository" << std::endl;
 	//out << "    -z             Machine-parseable output" << std::endl;
+	out << "    -i             Ignore untracked files" << std::endl;
 	out << std::endl;
 }
 int status (int argc, const char** argv)
@@ -1523,6 +1524,7 @@ int status (int argc, const char** argv)
 	bool		show_unencrypted_only = false;	// -u show unencrypted files only
 	bool		fix_problems = false;		// -f fix problems
 	bool		machine_output = false;		// -z machine-parseable output
+	bool		ignore_untracked = false;	// -i ignore untracked files
 
 	Options_list	options;
 	options.push_back(Option_def("-r", &repo_status_only));
@@ -1531,12 +1533,13 @@ int status (int argc, const char** argv)
 	options.push_back(Option_def("-f", &fix_problems));
 	options.push_back(Option_def("--fix", &fix_problems));
 	options.push_back(Option_def("-z", &machine_output));
+	options.push_back(Option_def("-i", &ignore_untracked));
 
 	int		argi = parse_options(options, argc, argv);
 
 	if (repo_status_only) {
-		if (show_encrypted_only || show_unencrypted_only) {
-			std::clog << "Error: -e and -u options cannot be used with -r" << std::endl;
+		if (show_encrypted_only || show_unencrypted_only || ignore_untracked) {
+			std::clog << "Error: -e, -u, and -i options cannot be used with -r" << std::endl;
 			return 2;
 		}
 		if (fix_problems) {
@@ -1576,11 +1579,14 @@ int status (int argc, const char** argv)
 		}
 	}
 
-	// git ls-files -cotsz --exclude-standard ...
+	// git ls-files -ctsz [-o] --exclude-standard ...
 	std::vector<std::string>	command;
 	command.push_back("git");
 	command.push_back("ls-files");
-	command.push_back("-cotsz");
+	command.push_back("-ctsz");
+	if (!ignore_untracked) {
+		command.push_back("-o");
+	}
 	command.push_back("--exclude-standard");
 	command.push_back("--");
 	if (argc - argi == 0) {
